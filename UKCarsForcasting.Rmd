@@ -1,0 +1,89 @@
+---
+title: "UK Cars Forcasting"
+author: "Jean Jecha"
+date: "July 18, 2016"
+output:
+  html_document:
+    keep_md: true
+---
+
+```{r load.Lib, include=FALSE}
+library(fpp) #fpp package must be installed first
+
+```
+#### Time series plot for UK Cars
+  * Upward trend from 1985 to 2005
+  * Not an identifiable seasonal trend
+```{r get.cars}
+# Get cars dataset
+data(ukcars)
+# regular time series plot
+plot(ukcars)
+```
+
+#### Classical Decomposition Trend
+  * More smoother upward trend from 1985 to 2005
+  * Seasonal trend more identifiable
+  * Looks like the low is in the beginning of the year
+```{r decompose.cars}
+# Classical decomposition to calculate trend cycle
+fitd <- decompose(ukcars)
+plot(fitd)
+```
+
+####  Seasonally adjusted plot
+  * Less of an extreme in seasonal trend
+  * still shows the upward trend
+```{r seas.adj.cars}
+# Seasonally adjusted data
+ukcadj <- seasadj(fitd)
+plot(ukcadj)
+```
+
+####  Normal Time-Series plot using TS
+  * Seeing the upward trend from 1985 to 2005
+```{r ts.cars}
+ukcars2 <- ts(ukcars,start=c(1977,1),frequency=4)
+plot(ukcars2)
+```
+
+#### Time-Series plot with middle outlier
+  * Changes the range compare to without outlier
+  * Overall trend is there but not a pronounced
+
+```{r ts.cars.middle.outlier}
+# plot outlier in middle
+ukcars3 <- ts(c(ukcars[1:50],ukcars[55]+300,ukcars[51:113]),start=c(1977,1),frequency=4)
+plot(ukcars3)
+```
+
+#### Time-Series plot with end outlier
+  * Very similar to the plot with the middle outlier
+  * Trend is the same showing the high peak at the end instead of middle
+```{r ts.cars.end.outlier}
+# plot outlier end
+ukcars4 <- ts(c(ukcars[1:113],ukcars[55]+300),start=c(1977,1),frequency=4)
+plot(ukcars4)
+```
+
+#### Using STL Decompose series
+  * Trend is same with classical decompose
+  * Seasonal is similar as classical decompose
+  * Data and observed seem the same
+  * Contains a remainder plot then the classical decompose
+```{r stl.cars}
+# Use STL for decompose
+ukcstl <- stl(ukcars, s.window="periodic")
+plot(ukcstl)
+
+```
+
+#### Showing regular plot data with the time series trend
+```{r cars.series.trend}
+# plot regular data with time series trend from stl
+plot(ukcars, col="gray",
+     main="UK Cars",
+     ylab="New orders index", xlab="")
+lines(ukcstl$time.series[,2],col="red",ylab="Trend")
+```
+
